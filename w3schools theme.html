@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>access() - POSIX System Call Documentation</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Fira+Code&display=swap');
+
+    /* --- Global Theme --- */
+    body {
+        font-family: 'Poppins', sans-serif;
+        background: #e9edf2;
+        color: #333;
+        margin: 0;
+        padding: 0;
+    }
+
+    header {
+        background: linear-gradient(135deg, #00796b, #004d40);
+        color: white;
+        text-align: center;
+        padding: 40px 20px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    header h1 {
+        margin: 0;
+        font-size: 2.8rem;
+        font-weight: 600;
+    }
+
+    .container {
+        display: flex;
+        max-width: 1300px;
+        margin: 50px auto;
+        gap: 35px;
+        line-height: 1.7;
+    }
+
+    .toc {
+        flex: 0 0 260px;
+        background: #f7f7f7;
+        border-radius: 12px;
+        box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        padding: 25px;
+        position: sticky;
+        top: 20px;
+        height: fit-content;
+    }
+
+    .toc h3 {
+        color: #004d40;
+        margin-bottom: 15px;
+    }
+
+    .toc ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    .toc li {
+        margin-bottom: 12px;
+    }
+
+    .toc a {
+        text-decoration: none;
+        color: #00796b;
+        font-weight: 500;
+        transition: color 0.3s;
+    }
+
+    .toc a:hover {
+        color: #004d40;
+    }
+
+    main {
+        flex: 1;
+        background: #f7f7f7;
+        border-radius: 12px;
+        padding: 40px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.08);
+    }
+
+    section {
+        margin-bottom: 50px;
+    }
+
+    h2 {
+        color: #00796b;
+        border-left: 6px solid #004d40;
+        padding-left: 12px;
+        margin-bottom: 20px;
+    }
+
+    pre {
+        background: #1e1e1e;
+        color: #dcdcdc;
+        padding: 25px;
+        border-radius: 10px;
+        overflow-x: auto;
+        line-height: 1.5;
+        font-size: 15px;
+        font-family: 'Fira Code', monospace;
+        margin-top: 15px;
+    }
+
+    /* --- Syntax Highlighting --- */
+    .keyword { color: #569CD6; font-weight: bold; }
+    .type { color: #4EC9B0; font-weight: bold; }
+    .string { color: #CE9178; }
+    .function { color: #DCDCAA; }
+    .comment { color: #6A9955; font-style: italic; }
+    .macro { color: #C586C0; }
+
+    /* --- Inline code styling (exclude pre blocks) --- */
+    :not(pre) > code {
+        background: #e0f2f1;
+        padding: 3px 6px;
+        border-radius: 5px;
+        color: #004d40;
+    }
+
+    ul li {
+        margin-bottom: 10px;
+    }
+
+    .example, .note {
+        background: #e0f7fa;
+        border-left: 6px solid #00796b;
+        padding: 20px;
+        border-radius: 10px;
+        margin-top: 15px;
+    }
+
+    .note {
+        background: #fff9e6;
+        border-left: 6px solid #ffb300;
+    }
+
+    .demo-container {
+        background: #f0f0f0;
+        padding: 25px;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+    }
+    .demo-controls {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+    .status-box {
+        padding: 15px;
+        border-radius: 8px;
+        border-left: 5px solid;
+        min-height: 80px;
+        transition: all 0.5s ease;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    .status-idle { background: #eee; border-color: #aaa; color: #666; }
+    .status-pending { background: #fffbe5; border-color: #ffc107; color: #856404; }
+    .status-success { background: #d4edda; border-color: #28a745; color: #155724; }
+    .status-fail { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+
+    .line-segment {
+        height: 4px;
+        background: #ccc;
+        margin: 0 10px;
+        transition: background 0.5s ease;
+    }
+    .line-active {
+        background: #00796b;
+    }
+
+    .final-output {
+        margin-top: 20px;
+        padding: 15px;
+        background: #e0f2f1;
+        border: 1px dashed #00796b;
+        border-radius: 8px;
+        white-space: pre-wrap;
+        font-family: 'Fira Code', monospace;
+        font-weight: bold;
+    }
+
+    @media (max-width: 900px) {
+        .container {
+            flex-direction: column;
+            margin: 25px;
+        }
+        .toc {
+            position: static;
+            width: 100%;
+        }
+        .demo-controls {
+            flex-direction: column;
+        }
+    }
+</style>
+</head>
+<body>
+<header>
+    <h1>access() POSIX System Call</h1>
+</header>
+
+<div class="container">
+    <aside class="toc">
+        <h3>📘 Table of Contents</h3>
+        <ul>
+            <li><a href="#syntax">Syntax</a></li>
+            <li><a href="#parameters">Parameters & Modes</a></li>
+            <li><a href="#return">Return Value & Errors</a></li>
+            <li><a href="#live-demo">Animated Live Demo</a></li>
+            <li><a href="#example">Complete C Code</a></li>
+        </ul>
+    </aside>
+
+    <main>
+        <!-- Syntax -->
+        <section id="syntax">
+            <h2>Syntax</h2>
+            <pre><code><span class="keyword">#include</span> <span class="string">&lt;unistd.h&gt;</span>
+<span class="type">int</span> <span class="function">access</span>(<span class="type">const char</span> *<span class="macro">pathname</span>, <span class="type">int</span> <span class="macro">mode</span>);</code></pre>
+        </section>
+
+        <!-- Parameters & Modes -->
+        <section id="parameters">
+            <h2>Parameters & Modes</h2>
+            <p>The <code>access()</code> function checks the file specified by <code class="macro">pathname</code> for the permissions defined by the bitwise OR of the following <code class="type">mode</code> constants:</p>
+            <div class="example">
+                <ul>
+                    <li><code class="macro">F_OK</code> – Tests only for **file existence**.</li>
+                    <li><code class="macro">R_OK</code> – Tests for **read** permission.</li>
+                    <li><code class="macro">W_OK</code> – Tests for **write** permission.</li>
+                    <li><code class="macro">X_OK</code> – Tests for **execute** (or directory search) permission.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Return Value -->
+        <section id="return">
+            <h2>Return Value & Errors</h2>
+            <p>The function returns <code class="keyword">0</code> on success (access is permitted). On failure, it returns <code class="keyword">-1</code> and sets the global variable <code>errno</code>.</p>
+            <div class="note">
+                <p>Common <code>errno</code> values:</p>
+                <ul>
+                    <li><code class="macro">EACCES</code>: Permission denied for requested mode (R_OK, W_OK, or X_OK).</li>
+                    <li><code class="macro">ENOENT</code>: The file does not exist.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Live Demo -->
+        <section id="live-demo">
+            <h2>Animated Live Demo: Access Checker</h2>
+            <p>Use the selector below to simulate different scenarios based on the complete C example program.</p>
+
+            <div class="demo-container">
+                <div class="demo-controls">
+                    <select id="scenario-select" class="flex-grow p-3 rounded-md border border-gray-400">
+                        <option value="success">Scenario 1: File Exists (R/W Access)</option>
+                        <option value="no_exist">Scenario 2: File Not Found (ENOENT)</option>
+                        <option value="no_rw">Scenario 3: File Exists, R/W Denied (EACCES)</option>
+                    </select>
+                    <button onclick="runSimulation()" class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-md transition shadow-md">Run Simulation</button>
+                </div>
+
+                <div class="space-y-4">
+                    <p class="font-mono text-lg text-gray-700">Checking: <span id="target-file">config.cfg</span></p>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-[1fr_50px_1fr] gap-4 items-center">
+                        <div id="check-fok" class="status-box status-idle col-span-1">
+                            <p class="font-bold">Step 1: Check Existence (<code class="macro">F_OK</code>)</p>
+                            <p id="result-fok" class="text-sm mt-1"></p>
+                        </div>
+                        <div class="flex items-center justify-center hidden sm:flex">
+                            <div id="line-fok" class="line-segment w-full"></div>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                        </div>
+                        <div class="hidden sm:block"></div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-[1fr_50px_1fr] gap-4 items-center">
+                        <div id="check-rw" class="status-box status-idle col-span-1">
+                            <p class="font-bold">Step 2: Check Permissions (<code class="macro">R_OK | W_OK</code>)</p>
+                            <p id="result-rw" class="text-sm mt-1"></p>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 mt-4 border-t border-gray-300">
+                        <p class="text-lg font-bold text-gray-700 mb-2">Final Program Output:</p>
+                        <div id="final-output" class="final-output">Click "Run Simulation" to start.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Example -->
+        <section id="example">
+            <h2>Complete C Code</h2>
+            <p>The code used in the animated demonstration, showing combined checks and error handling.</p>
+            <div class="example">
+                <pre><code>
+<span class="keyword">#include</span> <span class="string">&lt;stdio.h&gt;</span>     <span class="comment">// (Used for printf() - C standard IO)</span>
+<span class="keyword">#include</span> <span class="string">&lt;unistd.h&gt;</span>  <span class="comment">// (Required for access() - POSIX API)</span>
+<span class="keyword">#include</span> <span class="string">&lt;errno.h&gt;</span>   <span class="comment">// (Used to check 'errno' - Global error code)</span>
+<span class="keyword">#include</span> <span class="string">&lt;string.h&gt;</span>  <span class="comment">// (Used for strerror() - Error message lookup)</span>
+
+<span class="macro">#define</span> <span class="macro">TARGET_FILE</span> <span class="string">"config.cfg"</span> <span class="comment">// Define target file name</span>
+
+<span class="type">int</span> <span class="function">main</span>() { <span class="comment">// Main entry point</span>
+    <span class="comment">// Step 1: Check for file existence (F_OK).</span>
+    <span class="keyword">if</span> (<span class="function">access</span>(<span class="macro">TARGET_FILE</span>, <span class="macro">F_OK</span>) == <span class="keyword">0</span>) { <span class="comment">// access() returns 0 if file exists</span>
+        <span class="function">printf</span>(<span class="string">"INFO: File '%s' exists.\n"</span>, <span class="macro">TARGET_FILE</span>); <span class="comment">// Output success message</span>
+
+        <span class="keyword">if</span> (<span class="function">access</span>(<span class="macro">TARGET_FILE</span>, <span class="macro">R_OK</span> | <span class="macro">W_OK</span>) == <span class="keyword">0</span>) {
+            <span class="function">printf</span>(<span class="string">"[SUCCESS] We have both R/W access.\n"</span>);
+        } <span class="keyword">else</span> {
+            <span class="function">printf</span>(<span class="string">"[FAIL] R/W denied. Reason: %s\n"</span>, <span class="function">strerror</span>(<span class="macro">errno</span>));
+        }
+        
+    } <span class="keyword">else</span> {
+        <span class="function">printf</span>(<span class="string">"[ERROR] Target file not found or path error: %s\n"</span>, <span class="function">strerror</span>(<span class="macro">errno</span>));
+    }
+
+    <span class="keyword">return</span> <span class="keyword">0</span>;
+}
+                </code></pre>
+            </div>
+        </section>
+    </main>
+</div>
+
+<footer>
+    &copy; 2025 POSIX System Call Documentation. All Rights Reserved.
+</footer>
+
+<script>
+    const checkFok = document.getElementById('check-fok');
+    const checkRw = document.getElementById('check-rw');
+    const resultFok = document.getElementById('result-fok');
+    const resultRw = document.getElementById('result-rw');
+    const finalOutput = document.getElementById('final-output');
+    const lineFok = document.getElementById('line-fok');
+    const scenarioSelect = document.getElementById('scenario-select');
+
+    const SCENARIOS = {
+        'success': { fok: 'success', rw: 'success', output: `INFO: File 'config.cfg' exists.\n[SUCCESS] We have both R/W access.` },
+        'no_exist': { fok: 'fail', rw: 'idle', output: `[ERROR] Target file not found or path error: No such file or directory` },
+        'no_rw': { fok: 'success', rw: 'fail', output: `INFO: File 'config.cfg' exists.\n[FAIL] R/W denied. Reason: Permission denied` }
+    };
+
+    function resetSimulation() {
+        [checkFok, checkRw].forEach(el => el.className = 'status-box status-idle col-span-1');
+        [resultFok, resultRw].forEach(el => el.textContent = '');
+        if(lineFok) lineFok.classList.remove('line-active');
+        finalOutput.textContent = 'Simulation running...';
+        finalOutput.style.color = '#222';
+    }
+
+    function runSimulation() {
+        const scenarioKey = scenarioSelect.value;
+        const scenario = SCENARIOS[scenarioKey];
+        const delay = 700;
+
+        resetSimulation();
+
+        setTimeout(() => {
+            checkFok.classList.replace('status-idle', 'status-pending');
+            resultFok.textContent = 'Accessing file system...';
+        }, 100);
+
+        setTimeout(() => {
+            const status = scenario.fok === 'success' ? 'status-success' : 'status-fail';
+            const message = scenario.fok === 'success' ? 'access(F_OK) returned 0' : `access(F_OK) returned -1 (ENOENT)`;
+            
+            checkFok.classList.replace('status-pending', status);
+            resultFok.textContent = message;
+
+            if (scenario.fok === 'success') {
+                if(lineFok) lineFok.classList.add('line-active');
+                setTimeout(() => {
+                                        checkRw.classList.replace('status-idle', 'status-pending');
+                    resultRw.textContent = 'Checking combined R_OK | W_OK permissions...';
+                }, delay);
+
+                setTimeout(() => {
+                    const rwStatus = scenario.rw === 'success' ? 'status-success' : 'status-fail';
+                    const rwMessage = scenario.rw === 'success' ? 'access(R_OK | W_OK) returned 0' : `access(R_OK | W_OK) returned -1 (EACCES)`;
+                    
+                    checkRw.classList.replace('status-pending', rwStatus);
+                    resultRw.textContent = rwMessage;
+
+                    setTimeout(() => {
+                        finalOutput.textContent = scenario.output;
+                        finalOutput.style.color = scenario.rw === 'success' ? '#004d40' : '#dc3545';
+                    }, delay);
+                }, delay * 2);
+
+            } else {
+                setTimeout(() => {
+                    finalOutput.textContent = scenario.output;
+                    finalOutput.style.color = '#dc3545';
+                }, delay);
+            }
+
+        }, delay);
+    }
+</script>
+</body>
+</html>
+
