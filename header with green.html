@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dee Forge - Advanced Educational Header</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configure Tailwind to use a custom green color and black background -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        // Changed to pure black for the main background
+                        'forge-dark': '#000000',
+                        'forge-light': '#1f2937', // Used for subtle contrast and hover states
+                        'forge-green': '#10b981', // Emerald green for primary accents
+                        'forge-hover': '#059669', // Darker emerald for hover effects
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Apply smooth transition for elements that change appearance */
+        a, button, svg {
+            transition: all 0.2s ease-in-out;
+        }
+
+        /* Custom gradient for the sticky header background with black base and subtle blur */
+        .header-bg {
+            background-color: var(--tw-bg-opacity);
+            background-image: linear-gradient(to right, rgba(0, 0, 0, 0.95), rgba(17, 24, 39, 0.95)); /* Darker blend */
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        /* Keyframe for subtle floating logo effect */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-3px); }
+            100% { transform: translateY(0px); }
+        }
+        .logo-float:hover {
+            animation: float 2s ease-in-out infinite;
+        }
+
+        /* --- Custom CSS for Smooth Navigation Drawer Transition --- */
+        /* Initial (Closed) state for mobile menu */
+        #mobile-menu {
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-in-out, opacity 0.4s ease-in-out;
+        }
+
+        /* Active (Open) state for mobile menu */
+        #mobile-menu.is-open {
+            max-height: 500px; /* Sufficiently large height to cover content */
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-forge-dark text-gray-100 font-sans min-h-screen">
+
+    <!-- Header Section (Sticky and Responsive) -->
+    <header class="header-bg sticky top-0 z-50 shadow-2xl shadow-black/30 border-b border-forge-green/30">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Logo/Branding -->
+                <div class="flex-shrink-0">
+                    <a href="#" class="text-3xl font-extrabold text-forge-green logo-float flex items-center space-x-2">
+                        <!-- Code Symbol Icon -->
+                        <svg class="w-8 h-8 text-forge-green" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                        <span class="tracking-tighter">Dee Forge</span>
+                    </a>
+                </div>
+
+                <!-- Desktop Menu (Hidden on mobile) -->
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#" class="text-gray-300 hover:bg-forge-light hover:text-forge-green px-3 py-2 rounded-lg text-sm font-medium">Tutorials</a>
+                        <a href="#" class="text-gray-300 hover:bg-forge-light hover:text-forge-green px-3 py-2 rounded-lg text-sm font-medium">References</a>
+                        <a href="#" class="text-gray-300 hover:bg-forge-light hover:text-forge-green px-3 py-2 rounded-lg text-sm font-medium">Exercises</a>
+                        <a href="#" class="text-gray-300 hover:bg-forge-light hover:text-forge-green px-3 py-2 rounded-lg text-sm font-medium">Blog & News</a>
+                        
+                        <!-- Premium/CTA Button -->
+                        <button class="ml-4 bg-forge-green hover:bg-forge-hover text-forge-dark px-4 py-2 rounded-full text-sm font-bold shadow-lg shadow-forge-green/50 transform hover:scale-105">
+                            Go Premium
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Mobile Menu Button (Hamburger) -->
+                <div class="md:hidden flex items-center">
+                    <button id="menu-button" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-forge-light focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-forge-dark focus:ring-forge-green" aria-controls="mobile-menu" aria-expanded="false">
+                        <!-- Icon when menu is closed -->
+                        <svg id="menu-icon-closed" class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                        <!-- Icon when menu is open -->
+                        <svg id="menu-icon-open" class="hidden h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Mobile Menu (The Drawer) -->
+        <!-- Note: The initial 'hidden' is removed; the transition is now handled by max-height/opacity CSS. -->
+        <div class="md:hidden" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-forge-green/20">
+                <a href="#" class="text-gray-300 hover:bg-forge-light hover:text-forge-green block px-3 py-2 rounded-md text-base font-medium">Tutorials</a>
+                <a href="#" class="text-gray-300 hover:bg-forge-light hover:text-forge-green block px-3 py-2 rounded-md text-base font-medium">References</a>
+                <a href="#" class="text-gray-300 hover:bg-forge-light hover:text-forge-green block px-3 py-2 rounded-md text-base font-medium">Exercises</a>
+                <a href="#" class="text-gray-300 hover:bg-forge-light hover:text-forge-green block px-3 py-2 rounded-md text-base font-medium">Blog & News</a>
+                
+                <div class="pt-4 border-t border-gray-700">
+                    <button class="w-full bg-forge-green hover:bg-forge-hover text-forge-dark px-3 py-2 rounded-lg text-base font-bold shadow-md shadow-forge-green/40">
+                        Go Premium
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <script>
+        const menuButton = document.getElementById('menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuIconClosed = document.getElementById('menu-icon-closed');
+        const menuIconOpen = document.getElementById('menu-icon-open');
+
+        // Function to toggle the mobile menu visibility and apply smooth transition classes
+        function toggleMenu() {
+            const isExpanded = menuButton.getAttribute('aria-expanded') === 'true';
+            
+            // Toggle the custom class that enables the max-height/opacity transition
+            mobileMenu.classList.toggle('is-open');
+            
+            // Toggle ARIA attribute
+            menuButton.setAttribute('aria-expanded', !isExpanded);
+            
+            // Toggle icons
+            menuIconClosed.classList.toggle('hidden');
+            menuIconOpen.classList.toggle('hidden');
+        }
+
+        // Add event listener to the hamburger button
+        menuButton.addEventListener('click', toggleMenu);
+    </script>
+</body>
+</html>
